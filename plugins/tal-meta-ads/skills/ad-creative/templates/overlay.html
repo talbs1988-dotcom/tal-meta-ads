@@ -3,20 +3,22 @@
   <head>
     <meta charset="utf-8" />
     <link
-      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&display=swap"
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800;900&display=swap"
       rel="stylesheet"
     />
     <style>
-      /* ══════════════════════════════════════════════════
-         שכבת טקסט על קריאייטיב
-         למלא: --img, --accent, --ink, והטקסט למטה.
-         ══════════════════════════════════════════════════ */
+      /* ══════════════════════════════════════════════════════════
+         שכבת טקסט על קריאייטיב — הנחיות 3, 4, 5
+         ממלאים: --img, --accent, --bg-tint, --ink, והטקסט למטה.
+         מוחקים כל בלוק שלא בשימוש.
+         ══════════════════════════════════════════════════════════ */
       :root {
-        --img: url("base.png"); /* התמונה שנוצרה בשלב 1 */
-        --accent: #1a73e8; /* צבע המותג — להחליף */
-        --ink: #ffffff; /* צבע הטקסט */
-        --w: 1080px; /* 1080x1080 פיד · 1080x1350 מורחב · 1080x1920 סטורי */
-        --h: 1080px;
+        --img: url("design.png"); /* התמונה מהשלב הקודם */
+        --accent: #eac56e; /* הצבע המודגש — כפתור ומדבקה */
+        --accent-ink: #0b0b0d; /* טקסט על הצבע המודגש */
+        --ink: #ffffff; /* טקסט ראשי */
+        --w: 1024px;
+        --h: 1024px;
       }
 
       * {
@@ -24,7 +26,6 @@
         padding: 0;
         box-sizing: border-box;
       }
-
       body {
         width: var(--w);
         height: var(--h);
@@ -36,63 +37,105 @@
         position: relative;
         width: var(--w);
         height: var(--h);
-        background: var(--img) center/cover no-repeat;
+        background: var(--img) center / cover no-repeat;
       }
 
-      /* הצללה מלמטה — מה שגורם לטקסט להיקרא על תמונה עמוסה */
+      /* הצללה תחתונה — מה שגורם לטקסט להיקרא על תמונה עמוסה */
       .scrim {
         position: absolute;
         inset: 0;
         background: linear-gradient(
           to top,
-          rgba(0, 0, 0, 0.72) 0%,
-          rgba(0, 0, 0, 0.35) 32%,
-          transparent 62%
+          rgba(0, 0, 0, 0.78) 0%,
+          rgba(0, 0, 0, 0.38) 34%,
+          transparent 64%
         );
       }
 
-      .stack {
-        position: absolute;
-        right: 64px;
-        bottom: 64px;
-        left: 64px;
-        display: flex;
-        flex-direction: column;
-        gap: 22px;
-        align-items: flex-start;
-      }
-
-      /* שכבה 1 — האמירה. שלוש עד שבע מילים, לא יותר. */
-      .line {
-        font-size: 62px;
-        font-weight: 800;
-        line-height: 1.18;
-        color: var(--ink);
-        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
-      }
-
-      /* שכבה 2 — קריאה לפעולה. אופציונלי, אבל עוזר. */
-      .cta {
-        font-size: 30px;
-        font-weight: 600;
-        color: var(--ink);
-        background: var(--accent);
-        padding: 16px 34px;
-        border-radius: 999px;
-      }
-
-      /* פס עליון — לתאריך, "משדר חי", או כל דחיפות. אופציונלי. */
+      /* ── הנחיה 4: מדבקת מחיר / הצעה ────────────────────────── */
       .badge {
         position: absolute;
-        top: 56px;
-        right: 64px;
+        top: 54px;
+        right: 54px;
+        background: var(--accent);
+        color: var(--accent-ink);
+        padding: 16px 30px;
+        border-radius: 18px;
+        text-align: center;
+        box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        transform: rotate(-3deg);
+      }
+      .badge .lbl {
+        font-size: 19px;
+        font-weight: 600;
+        opacity: 0.75;
+      }
+      .badge .val {
+        font-size: 42px;
+        font-weight: 900;
+        line-height: 1.05;
+      }
+
+      /* ── הנחיה 3: טיפוגרפיה עברית כבדה ─────────────────────── */
+      .stack {
+        position: absolute;
+        right: 62px;
+        bottom: 62px;
+        left: 62px;
+        display: flex;
+        flex-direction: column;
+        gap: 24px;
+        align-items: flex-start;
+      }
+      .headline {
+        font-size: 64px;
+        font-weight: 800;
+        line-height: 1.14;
+        color: var(--ink);
+        text-shadow: 0 2px 16px rgba(0, 0, 0, 0.5);
+      }
+      .sub {
         font-size: 27px;
+        font-weight: 400;
+        color: var(--ink);
+        opacity: 0.88;
+        margin-top: -10px;
+      }
+
+      /* ── הנחיה 5: כפתור מעוגל עם חץ ────────────────────────── */
+      .cta {
+        display: inline-flex;
+        align-items: center;
+        gap: 12px;
+        font-size: 31px;
+        font-weight: 600;
+        color: var(--accent-ink);
+        background: var(--accent);
+        padding: 18px 40px;
+        border-radius: 999px;
+        box-shadow: 0 8px 26px rgba(0, 0, 0, 0.38);
+      }
+      .cta .arrow {
+        font-size: 26px;
+      }
+
+      /* ── הנחיה 5: לוגו בפינה ───────────────────────────────── */
+      .logo {
+        position: absolute;
+        bottom: 54px;
+        left: 62px;
+        height: 52px;
+        opacity: 0.95;
+      }
+      .logo-text {
+        position: absolute;
+        bottom: 62px;
+        left: 62px;
+        font-size: 22px;
         font-weight: 600;
         color: var(--ink);
-        background: rgba(0, 0, 0, 0.55);
-        backdrop-filter: blur(6px);
-        padding: 13px 28px;
-        border-radius: 999px;
+        opacity: 0.72;
+        letter-spacing: 0.5px;
       }
     </style>
   </head>
@@ -100,13 +143,26 @@
     <div class="canvas">
       <div class="scrim"></div>
 
-      <!-- למחוק אם אין דחיפות להציג -->
-      <div class="badge">‹תאריך או דחיפות›</div>
+      <!-- הנחיה 4 — מדבקה. למחוק אם אין מחיר/הצעה -->
+      <div class="badge">
+        <div class="lbl">‹תווית›</div>
+        <div class="val">‹מחיר›</div>
+      </div>
 
       <div class="stack">
-        <div class="line">‹האמירה — שלוש עד שבע מילים›</div>
-        <div class="cta">‹קריאה לפעולה ←›</div>
+        <!-- הנחיה 3 — 3 עד 7 מילים. לא משפט. -->
+        <div class="headline">‹הכותרת›</div>
+        <div class="sub">‹שורת משנה — אופציונלי, למחוק אם לא צריך›</div>
+
+        <!-- הנחיה 5 — כפתור עם חץ -->
+        <div class="cta">
+          <span>‹קריאה לפעולה›</span><span class="arrow">←</span>
+        </div>
       </div>
+
+      <!-- הנחיה 5 — לוגו. אחד מהשניים, למחוק את השני -->
+      <!-- <img class="logo" src="logo.png" alt="" /> -->
+      <div class="logo-text">‹שם המותג›</div>
     </div>
   </body>
 </html>
