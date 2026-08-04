@@ -1,0 +1,18 @@
+{
+  "name": "tal-meta-ads",
+  "description": "ארבעה סקילים לפרסום ממומן במטא, בעברית: אסטרטגיה → קופי → קריאייטיב → קמפיין → מדידה",
+  "version": "1.0.0",
+  "author": {
+    "name": "Tal Bsore"
+  },
+  "keywords": [
+    "meta-ads",
+    "facebook-ads",
+    "instagram-ads",
+    "hebrew",
+    "copywriting",
+    "creative",
+    "campaign"
+  ],
+  "license": "MIT"
+}

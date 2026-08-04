@@ -1,0 +1,20 @@
+{
+  "name": "tal-meta-ads",
+  "owner": {
+    "name": "Tal Bsore"
+  },
+  "metadata": {
+    "description": "ערכת הפרסום הממומן של טל בשור — מרעיון לקמפיין בחשבון, בעברית",
+    "version": "1.0.0"
+  },
+  "plugins": [
+    {
+      "name": "tal-meta-ads",
+      "source": "./plugins/tal-meta-ads",
+      "description": "ad-copywriter (קופי) · ad-creative (התמונה) · meta-campaign-builder (הקמפיין) · meta-report (מדידה)",
+      "version": "1.0.0",
+      "category": "marketing",
+      "tags": ["meta-ads", "facebook-ads", "hebrew", "campaign", "creative"]
+    }
+  ]
+}

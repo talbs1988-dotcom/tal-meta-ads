@@ -1,0 +1,112 @@
+<!doctype html>
+<html lang="he" dir="rtl">
+  <head>
+    <meta charset="utf-8" />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Rubik:wght@400;600;800&display=swap"
+      rel="stylesheet"
+    />
+    <style>
+      /* ══════════════════════════════════════════════════
+         שכבת טקסט על קריאייטיב
+         למלא: --img, --accent, --ink, והטקסט למטה.
+         ══════════════════════════════════════════════════ */
+      :root {
+        --img: url("base.png"); /* התמונה שנוצרה בשלב 1 */
+        --accent: #1a73e8; /* צבע המותג — להחליף */
+        --ink: #ffffff; /* צבע הטקסט */
+        --w: 1080px; /* 1080x1080 פיד · 1080x1350 מורחב · 1080x1920 סטורי */
+        --h: 1080px;
+      }
+
+      * {
+        margin: 0;
+        padding: 0;
+        box-sizing: border-box;
+      }
+
+      body {
+        width: var(--w);
+        height: var(--h);
+        font-family: "Rubik", sans-serif;
+        overflow: hidden;
+      }
+
+      .canvas {
+        position: relative;
+        width: var(--w);
+        height: var(--h);
+        background: var(--img) center/cover no-repeat;
+      }
+
+      /* הצללה מלמטה — מה שגורם לטקסט להיקרא על תמונה עמוסה */
+      .scrim {
+        position: absolute;
+        inset: 0;
+        background: linear-gradient(
+          to top,
+          rgba(0, 0, 0, 0.72) 0%,
+          rgba(0, 0, 0, 0.35) 32%,
+          transparent 62%
+        );
+      }
+
+      .stack {
+        position: absolute;
+        right: 64px;
+        bottom: 64px;
+        left: 64px;
+        display: flex;
+        flex-direction: column;
+        gap: 22px;
+        align-items: flex-start;
+      }
+
+      /* שכבה 1 — האמירה. שלוש עד שבע מילים, לא יותר. */
+      .line {
+        font-size: 62px;
+        font-weight: 800;
+        line-height: 1.18;
+        color: var(--ink);
+        text-shadow: 0 2px 14px rgba(0, 0, 0, 0.45);
+      }
+
+      /* שכבה 2 — קריאה לפעולה. אופציונלי, אבל עוזר. */
+      .cta {
+        font-size: 30px;
+        font-weight: 600;
+        color: var(--ink);
+        background: var(--accent);
+        padding: 16px 34px;
+        border-radius: 999px;
+      }
+
+      /* פס עליון — לתאריך, "משדר חי", או כל דחיפות. אופציונלי. */
+      .badge {
+        position: absolute;
+        top: 56px;
+        right: 64px;
+        font-size: 27px;
+        font-weight: 600;
+        color: var(--ink);
+        background: rgba(0, 0, 0, 0.55);
+        backdrop-filter: blur(6px);
+        padding: 13px 28px;
+        border-radius: 999px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="canvas">
+      <div class="scrim"></div>
+
+      <!-- למחוק אם אין דחיפות להציג -->
+      <div class="badge">‹תאריך או דחיפות›</div>
+
+      <div class="stack">
+        <div class="line">‹האמירה — שלוש עד שבע מילים›</div>
+        <div class="cta">‹קריאה לפעולה ←›</div>
+      </div>
+    </div>
+  </body>
+</html>
