@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
 """
-הדבקת תמונה אמיתית של טל לתוך אזור שמור בעיצוב שנוצר ב-AI.
+הדבקת התמונה האמיתית של בעל העסק לתוך אזור שמור בעיצוב שנוצר ב-AI.
 הפנים לא עוברות דרך המודל — נשארות מהצילום המקורי.
 
 שימוש:
   circle: python3 composite-photo.py circle <design.png> <photo> <out.png> <cx> <cy> <radius> [ring_width]
   rect:   python3 composite-photo.py rect   <design.png> <photo> <out.png> <x> <y> <w> <h> [corner_radius]
 
-הקואורדינטות נמדדות ידנית מהעיצוב שנוצר (בפיקסלים).
+הקואורדינטות קבועות מראש וזהות לאלה שבפרומפט (ברירת מחדל: מעגל 700 520 190 8 בקנבס 1024×1024). לא מודדים.
 """
 import sys
 from PIL import Image, ImageDraw, ImageOps
