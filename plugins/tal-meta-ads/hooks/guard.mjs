@@ -29,7 +29,7 @@ const mode = process.argv[2];
 
 // קריאה בלבד: לא משנה כלום בחשבון
 const READ_ONLY =
-  /^ads_(get_|insights_|library_|entity_get_|entity_schedule_report$|mcp_enabled$|log_ui_interaction$|experiment_list_tests$|experiment_check_eligibility$|experiment_(abtest|lift)_get_test$|catalog_(get|list)_|catalog_event_source_get|pixel_(event|parameter)_read$)/;
+  /^ads_(get_|account_get_|insights_|library_|entity_get_|entity_schedule_report$|mcp_enabled$|log_ui_interaction$|experiment_list_tests$|experiment_check_eligibility$|experiment_(abtest|lift)_get_test$|catalog_(get|list)_|catalog_event_source_get|pixel_(event|parameter)_read$)/;
 
 // העלאת קבצים לספריית המדיה: לא נוגעת בשום קמפיין
 const UPLOADS = new Set([
@@ -59,7 +59,16 @@ const OWNED_ONLY = {
 };
 
 // שדות שמעתיקים משהו קיים. בכל כלי, אסורים
-const COPY_FIELDS = ["source_campaign_id", "source_adset_id", "source_ad_id"];
+const COPY_FIELDS = [
+  "source_campaign_id",
+  "source_adset_id",
+  "source_ad_id",
+  "object_story_id", // פוסט של מודעה קיימת
+  "adset_spec", // יצירת סדרה בתוך מודעה, עם campaign_id שלא נבדק
+  "campaign_spec",
+  "include_in_ad_study_id",
+  "include_in_ad_study_cell_id",
+];
 
 // כלי יצירה, והשדה בתשובה של מטא שמחזיק את המזהה החדש
 const CREATORS = {
@@ -73,6 +82,7 @@ const CREATORS = {
 const PROTECTED_PATHS = [
   path.join(".claude", "tal-meta-ads"),
   path.join("plugins", "cache", "tal-meta-ads"),
+  path.join("plugins", "marketplaces", "tal-meta-ads"),
   "created-ids",
 ];
 
@@ -122,6 +132,33 @@ function shortName(toolName) {
   return m ? m[1] : null;
 }
 
+// התשובה של מטא מגיעה כאובייקט, כטקסט JSON, או כרשימת בלוקים של טקסט.
+// לוקחים רק את השדה ברמה העליונה, כדי שמזהה של קמפיין אחר שמופיע בתוך התשובה לא יירשם
+function topLevelId(resp, field) {
+  const candidates = [];
+  const add = (v) => {
+    if (typeof v === "string") {
+      try {
+        v = JSON.parse(v);
+      } catch {
+        return;
+      }
+    }
+    if (Array.isArray(v)) v.forEach((b) => b && b.text !== undefined && add(b.text));
+    else if (v && typeof v === "object") {
+      candidates.push(v);
+      if (Array.isArray(v.content)) add(v.content);
+      if (v.structuredContent) add(v.structuredContent);
+    }
+  };
+  add(resp);
+  for (const o of candidates) {
+    const id = o[field];
+    if (id !== undefined && /^\d{6,}$/.test(String(id))) return String(id);
+  }
+  return null;
+}
+
 function touchesProtected(text) {
   return PROTECTED_PATHS.some((p) => text.includes(p));
 }
@@ -134,7 +171,13 @@ if (mode === "pre") {
   const args = input.tool_input || {};
 
   if (["Write", "Edit", "MultiEdit", "NotebookEdit"].includes(tool)) {
-    if (touchesProtected(String(args.file_path || args.notebook_path || "")))
+    const file = String(args.file_path || args.notebook_path || "");
+    const body = JSON.stringify([args.content, args.new_string, args.edits]);
+    if (
+      touchesProtected(file) ||
+      (/settings(\.local)?\.json$/.test(file) &&
+        /tal-meta-ads|disableAllHooks/.test(body))
+    )
       deny("את רשימת הקמפיינים המותרים ואת חסימת הבטיחות לא משנים דרך Claude.");
     process.exit(0);
   }
@@ -142,7 +185,11 @@ if (mode === "pre") {
     const cmd = String(args.command || "");
     if (
       touchesProtected(cmd) ||
-      /plugin\s+(disable|uninstall|remove)\b[^\n]*tal-meta-ads/.test(cmd)
+      /plugin\s+(disable|uninstall|remove)\b[^\n]*tal-meta-ads/.test(cmd) ||
+      /disableAllHooks/.test(cmd) ||
+      (cmd.includes(".claude") &&
+        cmd.includes("tal-meta-ads") &&
+        /\bsed\s+-i|>|\b(mv|rm|cp|tee|truncate)\b/.test(cmd))
     )
       deny("את רשימת הקמפיינים המותרים ואת חסימת הבטיחות לא משנים דרך Claude.");
     process.exit(0);
@@ -150,6 +197,8 @@ if (mode === "pre") {
 
   const name = shortName(tool);
   if (!name) process.exit(0);
+  // כלים של שרתים אחרים שגם השם שלהם מתחיל ב-ads_ (למשל Ads Studio של Higgsfield)
+  if (name.startsWith("ads_studio_") || /higgsfield/i.test(tool)) process.exit(0);
   if (READ_ONLY.test(name) || UPLOADS.has(name)) process.exit(0);
 
   const copied = COPY_FIELDS.filter(
@@ -183,6 +232,8 @@ if (mode === "pre") {
     for (const m of raw.matchAll(/creative_id\\*"\s*:\s*\\*"?(\d{6,})/g))
       targets.push(m[1]);
     if (args.creative_id) targets.push(String(args.creative_id));
+    if (/object_story_id/.test(raw))
+      deny(`אסור להשתמש בפוסט של מודעה קיימת. בונים מאפס. ${FOREIGN}`);
   }
 
   const foreign = [...new Set(targets.filter((id) => !ids.has(id)))];
@@ -200,20 +251,13 @@ if (mode === "post") {
 
   // התשובה של מטא יכולה להגיע כאובייקט, כטקסט או כ-JSON בתוך טקסט. מחפשים בכל הצורות,
   // ורק את השדה של מה שנוצר עכשיו (לא מזהים אחרים שמופיעים בתשובה)
-  const raw = JSON.stringify(input.tool_response ?? "");
-  const re = new RegExp(
-    `\\\\*"${CREATORS[name]}\\\\*"\\s*:\\s*\\\\*"?(\\d{6,})`,
-    "g",
-  );
+  const id = topLevelId(input.tool_response, CREATORS[name]);
+  if (!id) process.exit(0);
   const ids = loadIds();
-  let added = 0;
-  for (const m of raw.matchAll(re)) {
-    if (!ids.has(m[1])) {
-      ids.add(m[1]);
-      added++;
-    }
+  if (!ids.has(id)) {
+    ids.add(id);
+    saveIds(ids);
   }
-  if (added) saveIds(ids);
   process.exit(0);
 }
 
