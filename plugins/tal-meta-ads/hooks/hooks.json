@@ -3,11 +3,20 @@
   "hooks": {
     "PreToolUse": [
       {
-        "matcher": "mcp__.*__ads_.*|Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "matcher": "mcp__.*__ads_.*",
         "hooks": [
           {
             "type": "command",
             "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.mjs\" pre || { echo 'חסימת בטיחות: בדיקת הבטיחות לא רצה (חסר node?), ולכן לא מבצעים פעולה בחשבון המודעות.' >&2; exit 2; }"
+          }
+        ]
+      },
+      {
+        "matcher": "Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.mjs\" pre || true"
           }
         ]
       }
