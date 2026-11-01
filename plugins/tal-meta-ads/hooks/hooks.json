@@ -1,0 +1,27 @@
+{
+  "description": "חסימת בטיחות: מנהל הקמפיינים נוגע רק במה שהוא בנה בעצמו",
+  "hooks": {
+    "PreToolUse": [
+      {
+        "matcher": "mcp__.*__ads_.*|Write|Edit|MultiEdit|NotebookEdit|Bash",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.mjs\" pre || { echo 'חסימת בטיחות: בדיקת הבטיחות לא רצה (חסר node?), ולכן לא מבצעים פעולה בחשבון המודעות.' >&2; exit 2; }"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "mcp__.*__ads_create_.*",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "node \"${CLAUDE_PLUGIN_ROOT}/hooks/guard.mjs\" post"
+          }
+        ]
+      }
+    ]
+  }
+}
